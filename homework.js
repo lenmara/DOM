@@ -1,119 +1,121 @@
 /**
- * Created by lenmara on 05.02.14.
+ * Created by lenmara on 12.02.14.
  */
-/**
- * Обработчик клика по ссылке с классом 'popup-link'
- * @param {Event} e событие клика
- * @private
- */
-function _onMouseClick(e) {
-    e.preventDefault();
-
-    e = e || window.event;
-    var target = e.target || e.srcElement;
-
-    openPopupFromLink(target);
-}
-
-/**
- * Получает данные из ссылки
- * на основе этих данных создаёт попап (через createPopup) и добавляет его в DOM
- * @param {HTMLElement} link Ссылка с data-аттрибутами
- */
-function openPopupFromLink(link) {
-    var data = link.dataset
-
-    var url = link.getAttribute('href');
-    var title = data.title;
-    var message = data.message.replace(/\%s/g, url);
-
-    link.setAttribute('data-message', message);
-
-    var onOk = function() {
-        location.href = url;
-    };
-
-    createPopup(title, message, onOk);
-}
-
-/**
- * Создаёт DOM-узел с сообщением
- * @param {String} title Заголовок сообщение
- * @param {String} message Текст сообщения сообщение
- * @param {Function} onOk Обработчик клика по кнопке 'Да'
- * @returns {HTMLElement}
- */
-
-function createPopup(title, message, onOk) {
-
-    var wrapper = document.createElement('div');
-    wrapper.className = 'wrapper';
-    wrapper.onclick =  function(e) {
-        var target = e.target || e.srcElement;
-        if (target.getAttribute('class') == "wrapper") {
-            wrapper.parentNode.removeChild(wrapper)
-        }
-    };
-
-    var popup = document.createElement('div');
-    popup.className = 'popup';
-    popup.id = 'test';
-
-    var exit = document.createElement('div');
-    exit.className = 'exit';
-    exit.onclick = function(e) {wrapper.parentNode.removeChild(wrapper)}
-
-
-    var no = document.createElement('div');
-    no.className = 'action no';
-    no.innerHTML = 'Нет';
-    no.onclick = function (e) { wrapper.parentNode.removeChild(wrapper) };
-
-    var yes = document.createElement('div');
-    yes.className = 'action yes';
-    yes.innerHTML = 'Да';
-    yes.onclick = function (e) { onOk(); };
-
-    var head = document.createElement('h4');
-    head.innerHTML = title;
-
-    var content = document.createElement('span');
-    content.innerHTML = message;
-
-    window.document.onkeydown = function (e)
-    {
-        if (!e) e = event;
-        if (e.keyCode == 27)
-            wrapper.parentNode.removeChild(wrapper)
-
-    }
-
-    popup.appendChild(head);
-    popup.appendChild(content);
-    popup.appendChild(exit);
-    popup.appendChild(no);
-    popup.appendChild(yes);
-    wrapper.appendChild(popup);
-
-    document.body.appendChild(wrapper);
-}
-
-
-
-window.onload = function() {
-    var popupLinks = document.getElementsByClassName('popup-link');
-    for(var i = 0; i < popupLinks.length; i++) {
-        AttachEvent(popupLinks[i], "click", _onMouseClick);
-    }
-}
-
-
 function AttachEvent(element, type, handler) {
     if (element.addEventListener) {
         element.addEventListener(type, handler, false);
     }
     else {
         element.attachEvent("on"+type, handler);
+    }
+}
+
+function Popup(elem, message, title, link) {
+    this._elem = elem;
+    this._message = message;
+    this._title = title;
+    this._link = link;
+    this._overlay;
+    this.init();
+}
+
+Popup.prototype = {
+    init: function() {
+        var self = this;
+        AttachEvent(this._elem, "click", function(e) {
+            self.showPopup(e);
+        });
+    },
+
+
+    showPopup: function(e) {
+        var self = this;
+        e.preventDefault();
+
+        if (!this._overlay) {
+
+            var popup = document.createElement('div'),
+                exit = document.createElement('div'),
+                noBtn = document.createElement('div'),
+                yesBtn = document.createElement('div'),
+                head = document.createElement('h4'),
+                content = document.createElement('span');
+
+            this._overlay = document.createElement('div');
+            this._overlay.className = 'b-overlay';
+            AttachEvent(this._overlay, 'click', function() { self.closePopup(); });
+
+            popup.className = 'popup';
+            popup.id = 'test';
+            AttachEvent(popup, 'click', function(e) { self.clickStopPropagation(e); });
+
+            exit.className = 'exit';
+            AttachEvent(exit,'click', function(e) { self.closePopup(e); });;
+
+            noBtn.className = 'button grey no';
+            noBtn.innerHTML = 'Нет';
+            AttachEvent(noBtn, 'click', function(e) { self.onCancel(e); });
+
+            yesBtn.className = 'button grey yes';
+            yesBtn.innerHTML = 'Да';
+            AttachEvent(yesBtn, 'click', function(e) { self.onYes(e); });
+
+            head.innerHTML = this._title;
+
+            content.innerHTML = this._message;
+
+            popup.appendChild(content);
+            popup.appendChild(head);
+            popup.appendChild(exit);
+            popup.appendChild(noBtn);
+            popup.appendChild(yesBtn);
+
+            this._overlay.appendChild(popup)
+            this._overlay.innerHTML;
+        }
+        document.body.appendChild(this._overlay);
+
+    },
+
+
+    closePopup: function() {
+        document.body.removeChild(this._overlay);
+    },
+    clickStopPropagation: function(event) {
+        event = event || window.event;
+
+        if (event.stopPropagation) {
+
+            event.stopPropagation();
+        } else {
+
+            event.cancelBubble = true;
+        }
+
+    },
+    targetClick: function() {
+        this.showPopup();
+    },
+    onYes: function() {
+        location.href = this._link;
+
+    },
+    onCancel: function() {
+        this.closePopup();
+
+
+    }
+}
+
+window.onload = function() {
+    var popupLinks = document.getElementsByClassName('popup-link');
+    for(var i = 0; i < popupLinks.length; i++) {
+        var data = popupLinks[i].dataset,
+            url = popupLinks[i].getAttribute('href'),
+            title = data.title,
+            message = data.message.replace(/\%s/g, url);
+
+        new Popup(popupLinks[i], message, title, url);
     }
 }
 
