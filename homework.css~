@@ -2,6 +2,7 @@ body
 {
     margin: 0;
     padding: 20px;
+
     font: 12px Verdana;
 }
 .b-overlay {
@@ -24,17 +25,6 @@ body
     z-index: 1;
     border-radius: 6px;
 }
-.popup span{
-    font-size: 14px;
-    font-weight: normal;
-    text-align: center;
-    margin-bottom: 18px;
-}
-.content h4{
-    font-size: 14px;
-    margin-bottom: 15px;
-}
-
 .exit {
     position: absolute;
     display: block;
@@ -57,38 +47,53 @@ body
     font-size: 12px;
     text-decoration: none!important;
     font-family: Helvetica, Arial, sans serif;
-    padding: 3px 10px;
+    padding: 8px 12px;
     border-radius: 3px;
-    margin-top: 10px;
-
+    -moz-border-radius: 3px;
+    box-shadow: inset 0px 0px 2px #fff;
+    -o-box-shadow: inset 0px 0px 2px #fff;
+    -webkit-box-shadow: inset 0px 0px 2px #fff;
+    -moz-box-shadow: inset 0px 0px 2px #fff;
 }
 
 .button:active {
     box-shadow: inset 0px 0px 3px #999;
-
+    -o-box-shadow: inset 0px 0px 3px #999;
+    -webkit-box-shadow: inset 0px 0px 3px #999;
+    -moz-box-shadow: inset 0px 0px 3px #999;
 }
 .grey {
     color: #444;
     border: 1px solid #d0d0d0;
+    background-image: -moz-linear-gradient(#ededed, #e1e1e1);
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#e1e1e1), to(#ededed));
+    background-image: -webkit-linear-gradient(#ededed, #e1e1e1);
+    background-image: -o-linear-gradient(#ededed, #e1e1e1);
     text-shadow: 1px 1px 1px #fff;
     background-color: #e1e1e1;
 }
 .grey:hover {
     border: 1px solid #b0b0b0;
+    background-image: -moz-linear-gradient(#e1e1e1, #ededed);
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ededed), to(#e1e1e1));
+    background-image: -webkit-linear-gradient(#e1e1e1, #ededed);
+    background-image: -o-linear-gradient(#e1e1e1, #ededed);
     background-color: #ededed;
 }
 .grey:active {border: 1px solid #666;}
 
 .no {
 
-    left: 2px;
+    padding: 5px;
+    left: 1px;
     position: absolute;
     bottom: 1px;
 }
 
 .yes {
 
-    right: 2px;
+    padding: 5px;
+    right: 1px;
     position: absolute;
     bottom: 1px;
 }
